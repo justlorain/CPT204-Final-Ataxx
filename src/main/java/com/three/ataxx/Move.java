@@ -72,10 +72,18 @@ class Move {
 	  */
     static boolean isClone(String location0, String location1) {
         // complete the code
-		
-		
-		
-        return false;
+
+        // if the two locations are adjacent, then it is a clone move
+        // isClone("c1", "d2") → true
+        // isClone("c1", "c1") → false
+		char col0 = location0.charAt(0);
+        char row0 = location0.charAt(1);
+        char col1 = location1.charAt(0);
+        char row1 = location1.charAt(1);
+        if (col0 == col1 && row0 == row1) {
+            return false;
+        }
+        return Math.abs(col0 - col1) <= 1 && Math.abs(row0 - row1) <= 1;
     }
 
     /** 
@@ -84,10 +92,15 @@ class Move {
 	  */
     static boolean isJump(String location0, String location1) {
         // complete the code
+		// if the two locations are not adjacent, then it is a jump move
+        // isJump("c1", "d3") → true
+        char col0 = location0.charAt(0);
+        char row0 = location0.charAt(1);
+        char col1 = location1.charAt(0);
+        char row1 = location1.charAt(1);
+
 		
-		
-		
-        return false;
+        return (Math.abs(col0 - col1) == 2 && Math.abs(row0 - row1) <=2) || (Math.abs(row0 - row1) == 2 && Math.abs(col0 - col1) <= 2);
     }
 
 

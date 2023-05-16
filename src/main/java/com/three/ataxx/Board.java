@@ -227,30 +227,45 @@ class Board {
                 && getContent(col, r) != EMPTY
                 && getContent(c, r) != EMPTY);
     }
-	
-	
 
-	// Final Project Part A.1.2 Setting a Block
+
+    // Final Project Part A.1.2 Setting a Block
 
     /** Set a block on the square c r and its reflections across the middle row and/or column,
      *      if that square is unoccupied.
-	 *  If the square has been occupied by a piece or a block, an error will be thrown.
+     *  If the square has been occupied by a piece or a block, an error will be thrown.
      */
     void setBlock(char c, char r) {
-		
+
         // Please do not change the following codes
         if (!blockLegal(c, r)) {
             throw error("illegal block placement");
         }
-        char col = (char) ('g' - (c - 'a'));
-        char row = (char) ('7' - (r - '1'));
+        char col = (char) ('g' - (c - 'a')); // convert the column to the index
+        char row = (char) ('7' - (r - '1')); // convert the row to the index
 
         // Complete the code
         // Hints: Consider using the method setContent and the variable unblockedNum
+        char col_mirror = (char) ('g' - (col - 'a'));
+        char row_mirror = (char) ('7' - (row - '1'));
+        setContent(col, row, BLOCKED);
+        setContent(col_mirror, row, BLOCKED);
+        setContent(col, row_mirror, BLOCKED);
+        setContent(col_mirror, row_mirror, BLOCKED);
 
+        int decNum = -4;
 
-
-
+        if (col == col_mirror && row == row_mirror){
+            decNum += 3;
+        } else {
+            if (col == col_mirror) {
+                decNum += 2;
+            }
+            if (row == row_mirror) {
+                decNum += 2;
+            }
+        }
+        unblockedNum += decNum;
 
         // Please do not change the following codes
         if (!couldMove(RED) && !couldMove(BLUE)) {
@@ -258,13 +273,11 @@ class Board {
         }
         announce();
     }
-	
 
     /** Return total number of unblocked squares. */
     int unblockedNum() {
         return unblockedNum;
     }
-
 
     @Override
     public String toString() {
@@ -332,26 +345,34 @@ class Board {
     static int index(char col, char row) {
         return (row - '1' + 2) * DEEPER_ONESIDE + (col - 'a' + 2);
     }
-	
-	
-	// Final Project Part A.1.4 Getting the Winner
+
+
+    // Final Project Part A.1.4 Getting the Winner
 
     /** The method to find the winner of the game.
-	  * It also stores the result in instance variable winner.
-	  * @return null if the game is not finished.
-	  * @return RED or BLUE if the game is finished and there is a winner of that color.
-	  * @return EMPTY if the game is finished but there is not winner / a tie.
+     * It also stores the result in instance variable winner.
+     * @return null if the game is not finished.
+     * @return RED or BLUE if the game is finished and there is a winner of that color.
+     * @return EMPTY if the game is finished but there is not winner / a tie.
       */
     PieceState getWinner() {
         // complete the code 
         // Hints: Consider using couldMove, getColorNums, getConsecJumpNums
-		
-		
-		
-		// Please do not change the return statement below
+        if ((couldMove(RED) || couldMove(BLUE)) && (getConsecJumpNums() < 25) && (getColorNums(RED) > 0 && getColorNums(BLUE) > 0)) { // if the game is not finished
+            return null;
+        } else if (getColorNums(RED) > getColorNums(BLUE)) { // if red has more pieces
+            winner = RED;
+        } else if (getColorNums(RED) < getColorNums(BLUE)) { // if blue has more pieces
+            winner = BLUE;
+        } else if (getColorNums(RED) == getColorNums(BLUE)) { // if red and blue have the same number of pieces
+            winner = EMPTY;
+        }
+
+
+        // Please do not change the return statement below
         return winner;
     }
-	
+
 
     /** Increment getColorNums(COLOR) by K. */
     private void incrColorPieces(PieceState color, int k) {
@@ -396,19 +417,18 @@ class Board {
     }
 
 
-	// Final Project Part A.1.1 Getting the Number of Colors
-	
+    // Final Project Part A.1.1 Getting the Number of Colors
+
     /** Return number of color pieces on the board.
      *  This method will be used in the method getScore().
-	 *  @param color represents the color of the piece, either RED or BLUE.
-	 *  @return the number of pieces having the corresponding color.
-	 */
+     *  @param color represents the color of the piece, either RED or BLUE.
+     *  @return the number of pieces having the corresponding color.
+     */
     int getColorNums(PieceState color) {
         // complete the code
-		
-		
-		
-        return 0;
+
+
+        return colorNum[color.ordinal()];
     }
 
     // Please do not change code of the following method.
