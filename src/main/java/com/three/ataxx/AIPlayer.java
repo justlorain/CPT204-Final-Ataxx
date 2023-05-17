@@ -22,10 +22,12 @@ class AIPlayer extends Player {
     /** The move found by the last call to the findMove method above. */
     private Move lastFoundMove;
 
-    /** Constructs a new AIPlayer for GAME that will play MYCOLOR.
-     *  SEED is used to initialize a random-number generator,
-	 *  increase the value of SEED would make the AIPlayer move automatically.
-     *  Identical seeds produce identical behaviour.
+    /**
+     * Constructs a new AIPlayer for GAME that will play MYCOLOR.
+     * SEED is used to initialize a random-number generator,
+	 * increase the value of SEED would make the AIPlayer move automatically.
+     * Identical seeds produce identical behaviour.
+     *
      * @param game the game
      * @param myColor the color of the player
      * @param seed the seed
@@ -36,6 +38,7 @@ class AIPlayer extends Player {
 
     /**
      * Return true iff I am an automated player that automatically
+     *
      * @return true iff I am an automated player that automatically
      */
     @Override
@@ -45,6 +48,7 @@ class AIPlayer extends Player {
 
     /**
      * Return my next move from the current position in getAtaxxGame().
+     *
      * @return my next move from the current position in getAtaxxGame().
      */
     @Override
@@ -54,8 +58,10 @@ class AIPlayer extends Player {
         return move.toString();
     }
 
-    /** Return a move for me from the current position, assuming there is a move.
+    /**
+     * Return a move for me from the current position, assuming there is a move.
      * The move's row and column values must be in the range 0..Board.SIDE - 1.
+     *
      * @return a move for me from the current position, assuming there is a move.
      */
     private Move findMove() {
@@ -73,6 +79,7 @@ class AIPlayer extends Player {
 
     /**
      * Return a heuristic value for BOARD.
+     *
      * @param board the board
      * @return a heuristic value for BOARD.
      */
@@ -103,13 +110,9 @@ class AIPlayer extends Player {
         return totalScore;
     }
 
-    /** Find a move from position BOARD and return its value, recording
-     *  the move found in _foundMove iff SAVEMOVE. The move
-     *  should have maximal value or have value > BETA if SENSE==1,
-     *  and minimal value or value < ALPHA if SENSE==-1. Searches up to
-     *  DEPTH levels.  Searching at level 0 simply returns a static estimate
-     *  of the board value and does not set _foundMove. If the game is over
-     *  on BOARD, does not set _foundMove.
+    /**
+     *  Implementation of minMax and Alpha Beta pruning algorithm
+     *
      *  @param board the board
      *  @param depth the depth
      *  @param saveMove whether to save the move
@@ -165,7 +168,9 @@ class AIPlayer extends Player {
         return bestValue;
     }
 
-    /** Return all possible moves for a color.
+    /**
+     * possibleMoves returns an ArrayList of all possible moves for the specified color.
+     *
      * @param board the current board.
      * @param myColor the specified color.
      * @return an ArrayList of all possible moves for the specified color.
@@ -194,7 +199,9 @@ class AIPlayer extends Player {
         return possibleMoves;
     }
 
-    /** Returns an Arraylist of legal moves.
+    /**
+     * assist possible moves for a color.
+     *
      * @param board the board for testing
      * @param row the row coordinate of the center
      * @param col the col coordinate of the center
