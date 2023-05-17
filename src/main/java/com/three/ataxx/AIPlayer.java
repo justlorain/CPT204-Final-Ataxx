@@ -2,7 +2,6 @@ package com.three.ataxx;
 
 import java.util.ArrayList;
 
-import static com.three.ataxx.PieceState.RED;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -56,18 +55,30 @@ class AIPlayer extends Player {
 
     /** Return a heuristic value for BOARD.  This value is +- WINNINGVALUE in
      *  won positions, and 0 for ties. */
-    private int staticScore(Board board, int winningValue) {
+    private int staticScore(Board board, int currentDepth, int possibleMoves) {
         PieceState winner = board.getWinner();
         if (winner != null) {
             return switch (winner) {
-                case RED -> winningValue; // RED wins
-                case BLUE -> -winningValue; // BLUE wins
+                case RED -> AIPlayer.WINNING_VALUE; // RED wins
+                case BLUE -> -AIPlayer.WINNING_VALUE; // BLUE wins
                 default -> 0;
             };
         }
+        int totalScore;
+
+        // 计算分差
         int myColor = board.getColorNums(board.nextMove());
         int oppColor = board.getColorNums(board.nextMove().opposite());
-        return myColor - oppColor;
+        int diff = myColor - oppColor;
+
+//        // 计算期盼中心控制力
+//        int myCenterScore = board.CountWeightedScoreByColor(board.nextMove());
+//        int oppCenterScore = board.CountWeightedScoreByColor(board.nextMove().opposite());
+//        int centerDiff = myCenterScore - oppCenterScore;
+
+        // 计算总分
+//        totalScore = diff * 10 + centerDiff * 5 + possibleMoves * 7 + currentDepth;
+        return diff * 10 + currentDepth;
     }
 
     /** Find a move from position BOARD and return its value, recording
@@ -83,7 +94,7 @@ class AIPlayer extends Player {
          * wins that happen sooner rather than later (depth is larger the
          * fewer moves have been made. */
         if (depth == 0 || board.getWinner() != null) { // base case 游戏结束
-            return staticScore(board, WINNING_VALUE + depth);
+            return staticScore(board, depth, possibleMoves(board, board.nextMove()).size());
         }
         int bestValue;
         if (sense == 1) {
@@ -142,10 +153,20 @@ class AIPlayer extends Player {
      * @return an ArrayList of all possible moves for the specified color. */
     private ArrayList<Move> possibleMoves(Board board, PieceState myColor) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
-        for (char row = '7'; row >= '1'; row--) {
+
+//        int beginIndex = Board.index('a', '1');
+//        int endIndex = Board.index('g', '7');
+//        for (int i = beginIndex; i <= endIndex; i++) {
+//            if (board.getContent(i) == myColor) {
+//                ArrayList<Move> addMoves = assistPossibleMoves(board, i);
+//                possibleMoves.addAll(addMoves);
+//            }
+//        }
+
+        for (char row = '7'; row >= '1'; row--) { // iterate the board
             for (char col = 'a'; col <= 'g'; col++) {
-                int index = Board.index(col, row);
-                if (board.getContent(index) == myColor) {
+                int index = Board.index(col, row); // get the index
+                if (board.getContent(index) == myColor) { // if it is my color then find all possible moves around
                     ArrayList<Move> addMoves
                             = assistPossibleMoves(board, row, col);
                     possibleMoves.addAll(addMoves);
@@ -161,13 +182,14 @@ class AIPlayer extends Player {
      * @param col the col coordinate of the center */
     private ArrayList<Move> assistPossibleMoves(Board board, char row, char col) {
         ArrayList<Move> assistPossibleMoves = new ArrayList<>();
-        for (int i = -2; i <= 2; i++) {
+
+        for (int i = -2; i <= 2; i++) { // search all possible moves around two steps
             for (int j = -2; j <= 2; j++) {
                 if (i != 0 || j != 0) {
-                    char row2 = (char) (row + j);
+                    char row2 = (char) (row + j); // get the row and col of the possible move
                     char col2 = (char) (col + i);
-                    Move currMove = Move.move(col, row, col2, row2);
-                    if (board.moveLegal(currMove)) {
+                    Move currMove = Move.move(col, row, col2, row2); // create a move
+                    if (board.moveLegal(currMove)) { // if it is legal then add it to the list
                         assistPossibleMoves.add(currMove);
                     }
                 }

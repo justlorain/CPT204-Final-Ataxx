@@ -510,4 +510,36 @@ class Board {
 
     /** Number of consecutive non-cloning moves before getAtaxxGame ends. */
     static final int CONSEC_JUMP_LIMIT = 25;
+
+    int CountWeightedScoreByColor(PieceState color) {
+        // 棋盘为7*7，共49个位置
+        // 在棋盘正中间时，分数=1*2
+        // 在棋盘正中间边缘一圈时，分数=1*1.5
+        // 在棋盘正中间边缘两圈时，分数=1*1
+        // 在棋盘最边缘，分数=1*0.5
+        int score = 0;
+        int beginIndex = index('a', '1');
+        int endIndex = index('g', '7');
+        for (int i = beginIndex; i <= endIndex; i++) {
+            if (getContent(i) == color) { // 如果是自己的棋子
+                int row = i / DEEPER_ONESIDE; // 棋子的y坐标 因为row * 11 + col = index
+                int col = i % DEEPER_ONESIDE; // 棋子的x坐标
+                int min = Math.min(row, col); // 棋子到棋盘边缘的最小距离
+                int max = Math.max(row, col); // 棋子到棋盘边缘的最大距离
+                int distance = Math.min(min, ONESIDE - max - 1); // 最小值，或是距离另一侧更近的情况
+                if (distance == 0) {
+                    score += 0.5;
+                } else if (distance == 1) {
+                    score += 1;
+                } else if (distance == 2) {
+                    score += 1.5;
+                } else {
+                    score += 2;
+                }
+            }
+        }
+        return score;
+    }
+
+
 }
