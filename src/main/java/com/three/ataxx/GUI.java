@@ -43,6 +43,7 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         addLabel("    0 sec", "Timer", new LayoutSpec("y", 1, "anchor", "west"));
         addLabel("Red 0 : 0 Blue", "Score", new LayoutSpec("y", 1, "anchor", "east"));
         addButton("Pass", this::doPass, new LayoutSpec("y", "1"));
+        prepareTimer();
     }
 
     // Add some codes here
@@ -57,12 +58,6 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         setEnabled(false, "Setting->Blocks->Set Blocks");
         setEnabled(true, "Setting->Blocks->Move Pieces");
         gamePad.setBlockMode(false);
-
-        // prepare timer
-        timer = new Timer();
-        sec = 0;
-        timerFlag = false;
-        doTimer();
     }
 
     /** Execute 'pass' command, if legal. */
@@ -113,32 +108,35 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         setLabel("Score", label);
     }
 
-    public void doTimer() {
+    private void prepareTimer() {
+        timer = new Timer();
+        sec = 0;
+        timerFlag = true;
+    }
+
+    private void startTimer() {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                sec++;
                 String label = String.format("    %d sec", sec);
                 setLabel("Timer", label);
+                sec++;
             }
         };
-
-        // 定义计时器的开始时间和间隔时间（以毫秒为单位）
-        long delay = 1000L; // 延迟1秒执行
-        long interval = 0L; // 每隔1秒执行
-
-        // 安排计时器任务
+        long delay = 0L;
+        long interval = 1000L;
         timer.scheduleAtFixedRate(task, delay, interval);
     }
 
-    public void clear() {
-        sec = 0;
+    public void stopTimer() {
+        timer.cancel(); // 停止计时器
     }
 
-    public void stopAndClear() {
-        timer.cancel();
-        timer.purge();
-        clear();
+    public void restartTimer() {
+        timer.cancel(); // 取消当前计时器
+        timer = new Timer(); // 创建新的计时器
+        sec = 0; // 将 count 变量归零
+        startTimer(); // 重新开始计时
     }
 
     /** Add the command described by FORMAT, ARGS (as for String.format) to
@@ -152,12 +150,17 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
 
     @Override
     public void update(Board board) {
+        if (timerFlag) {
+            startTimer();
+            timerFlag = false;
+        }
         if (board == this.board) {
             updateStateLabel();
             updateScoreLabel();
         }
         this.board = board;
         gamePad.update(board);
+        restartTimer();
     }
 
     @Override
@@ -175,6 +178,7 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
             showMessage("Tie game.", "Outcome", "information");
         } else {
             showMessage(state.toString() + " wins.", "Outcome", "information");
+            stopTimer();
         }
     }
 
