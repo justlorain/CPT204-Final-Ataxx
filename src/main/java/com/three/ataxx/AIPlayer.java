@@ -74,15 +74,14 @@ class AIPlayer extends Player {
     /**
      * Return a heuristic value for BOARD.
      * @param board the board
-     * @param winningValue the winning value
      * @return a heuristic value for BOARD.
      */
-    private int staticScore(Board board, int winningValue) {
+    private int staticScore(Board board) {
         PieceState winner = board.getWinner();
         if (winner != null) {
             return switch (winner) {
-                case RED -> winningValue; // RED wins
-                case BLUE -> -winningValue; // BLUE wins
+                case RED -> AIPlayer.WINNING_VALUE; // RED wins
+                case BLUE -> -AIPlayer.WINNING_VALUE; // BLUE wins
                 default -> 0;
             };
         }
@@ -121,7 +120,7 @@ class AIPlayer extends Player {
      */
     private int minMax(Board board, int depth, boolean saveMove, int sense, int alpha, int beta) {
         if (depth == 0 || board.getWinner() != null) {
-            return staticScore(board, WINNING_VALUE);
+            return staticScore(board);
         }
         int bestValue;
         if (sense == 1) {
