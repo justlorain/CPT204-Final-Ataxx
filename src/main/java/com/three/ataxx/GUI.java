@@ -23,9 +23,9 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         addMenuRadioButton("Game->Blocks->Set Blocks", "Blocks", false, this::adjustBlockMode);
         addMenuRadioButton("Game->Blocks->Move Pieces", "Blocks", true, this::adjustBlockMode);
 //        addMenuButton("Setting->Set Seed", this::setSeed);
-        addMenuRadioButton("Game->Players->Red AI", "Red", false, (dummy) -> send("auto red"));
+        addMenuRadioButton("Game->Players->Red AI", "Red", false, (dummy) -> send("ai red"));
         addMenuRadioButton("Game->Players->Red Manual", "Red", true, (dummy) -> send("manual red"));
-        addMenuRadioButton("Game->Players->Blue AI", "Blue", true, (dummy) -> send("auto blue"));
+        addMenuRadioButton("Game->Players->Blue AI", "Blue", true, (dummy) -> send("ai blue"));
         addMenuRadioButton("Game->Players->Blue Manual", "Blue", false, (dummy) -> send("manual blue"));
         addMenuButton("Game->Quit", this::quit);
 

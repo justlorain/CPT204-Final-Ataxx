@@ -44,11 +44,8 @@ class AIPlayer extends Player {
     private Move findMove() {
         Board b = new Board(getAtaxxBoard());
         lastFoundMove = null;
-        if (getMyState() == RED) { // RED is maximizing player
-            minMax(b, MAX_DEPTH, true, 1, -INFTY, INFTY);
-        } else { // BLUE is minimizing player
-            minMax(b, MAX_DEPTH, true, -1, -INFTY, INFTY);
-        }
+
+        minMax(b, MAX_DEPTH, true, -1, -INFTY, INFTY);
 
         // Please do not change the codes below
         if (lastFoundMove == null) {
@@ -63,8 +60,8 @@ class AIPlayer extends Player {
         PieceState winner = board.getWinner();
         if (winner != null) {
             return switch (winner) {
-                case RED -> winningValue;
-                case BLUE -> -winningValue;
+                case RED -> winningValue; // RED wins
+                case BLUE -> -winningValue; // BLUE wins
                 default -> 0;
             };
         }
