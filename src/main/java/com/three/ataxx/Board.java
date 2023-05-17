@@ -182,6 +182,27 @@ class Board {
         announce();
     }
 
+    void undoMove() {
+        if (totalMoves.size() == 0) {
+            return;
+        }
+        Move lastMove = totalMoves.remove(totalMoves.size() - 1);
+        PieceState opponent = nextMove().opposite();
+        if (lastMove.isJump()) {
+            setContent(lastMove.toIndex(), EMPTY);
+            setContent(lastMove.fromIndex(), nextMove());
+            convertColor(lastMove, nextMove()); // 把颜色转换回来
+            consecJumpNum--;
+        } else if (lastMove.isClone()) {
+            setContent(lastMove.toIndex(), EMPTY);
+            consecJumpNum = 0;
+            incrColorPieces(nextMove(), -1);
+        }
+        nextMove = opponent;
+        getWinner();
+        announce();
+    }
+
     /** Changes the color of surrounding pieces within 1
      *  by Move.
      *  @param move The move that is used for converting
@@ -358,7 +379,7 @@ class Board {
     PieceState getWinner() {
         // complete the code 
         // Hints: Consider using couldMove, getColorNums, getConsecJumpNums
-        if ((couldMove(RED) || couldMove(BLUE)) && (getConsecJumpNums() < 25) && (getColorNums(RED) > 0 && getColorNums(BLUE) > 0)) { // if the game is not finished
+        if ((couldMove(RED) || couldMove(BLUE)) && (getConsecJumpNums() < CONSEC_JUMP_LIMIT) && (getColorNums(RED) > 0 && getColorNums(BLUE) > 0)) { // if the game is not finished
             return null;
         } else if (getColorNums(RED) > getColorNums(BLUE)) { // if red has more pieces
             winner = RED;

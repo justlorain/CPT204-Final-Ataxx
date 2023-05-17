@@ -3,7 +3,6 @@ package com.three.ataxx;
 import java.util.ArrayList;
 
 import static com.three.ataxx.PieceState.RED;
-import static java.awt.Color.BLUE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -13,7 +12,7 @@ import static java.lang.Math.min;
 class AIPlayer extends Player {
 
     /** Maximum minimax search depth before going to static evaluation. */
-    private static final int MAX_DEPTH = 4;
+    private static final int MAX_DEPTH = 5;
     /** A position magnitude indicating a win (for red if positive, blue
      *  if negative). */
     private static final int WINNING_VALUE = Integer.MAX_VALUE - 20;
@@ -45,13 +44,11 @@ class AIPlayer extends Player {
     private Move findMove() {
         Board b = new Board(getAtaxxBoard());
         lastFoundMove = null;
-        if (getMyState() == RED) {
+        if (getMyState() == RED) { // RED is maximizing player
             minMax(b, MAX_DEPTH, true, 1, -INFTY, INFTY);
-        } else {
+        } else { // BLUE is minimizing player
             minMax(b, MAX_DEPTH, true, -1, -INFTY, INFTY);
         }
-		
-
 
         // Please do not change the codes below
         if (lastFoundMove == null) {
@@ -88,7 +85,7 @@ class AIPlayer extends Player {
         /* We use WINNING_VALUE + depth as the winning value to favor
          * wins that happen sooner rather than later (depth is larger the
          * fewer moves have been made. */
-        if (depth == 0 || board.getWinner() != null) {
+        if (depth == 0 || board.getWinner() != null) { // base case 游戏结束
             return staticScore(board, WINNING_VALUE + depth);
         }
         int bestValue;
@@ -97,23 +94,22 @@ class AIPlayer extends Player {
             ArrayList<Move> listOfMoves =
                     possibleMoves(board, board.nextMove());
             for (Move move : listOfMoves) {
-                Board copyBoard = new Board(board);
+                Board copyBoard = new Board(board); // copy the board each time
                 copyBoard.createMove(move);
                 int possible
                         = minMax(copyBoard, depth - 1, false, -1, alpha, beta);
-                if (saveMove && possible > bestValue) {
+                if (saveMove && possible > bestValue) { // save the best move
                     lastFoundMove = move;
                 }
-                bestValue = max(bestValue, possible);
+                bestValue = max(bestValue, possible); // update the best value
                 alpha = max(alpha, bestValue);
-                if (beta <= alpha) {
+                if (beta <= alpha) { // alpha cut-off
                     break;
                 }
             }
-            if (bestValue == -INFTY) {
+            if (bestValue == -INFTY) { // no possible moves
                 return 0;
             }
-            return bestValue;
         } else {
             bestValue = INFTY;
             ArrayList<Move> listOfMoves =
@@ -128,15 +124,15 @@ class AIPlayer extends Player {
                 }
                 bestValue = min(bestValue, possible);
                 beta = min(beta, bestValue);
-                if (beta <= alpha) {
+                if (beta <= alpha) { // beta cut-off
                     break;
                 }
             }
-            if (bestValue == INFTY) {
+            if (bestValue == INFTY) { // no possible moves
                 return 0;
             }
-            return bestValue;
         }
+        return bestValue;
     }
 
     /** The move found by the last call to the findMove method above. */
