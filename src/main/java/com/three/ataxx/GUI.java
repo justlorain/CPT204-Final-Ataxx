@@ -2,6 +2,8 @@ package com.three.ataxx;
 
 // Optional Task: The GUI for the Ataxx Game
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static com.three.ataxx.PieceState.*;
@@ -15,23 +17,30 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
     /** The model of the game. */
     private Board board;
 
+    /** Timer */
+    private Timer timer;
+    private int sec;
+
+    private boolean timerFlag;
+
     // Complete the codes here
     GUI(String ataxx) {
         super(ataxx, true);
         // set game
-        addMenuButton("Game->New", this::newGame);
-        addMenuRadioButton("Game->Blocks->Set Blocks", "Blocks", false, this::adjustBlockMode);
-        addMenuRadioButton("Game->Blocks->Move Pieces", "Blocks", true, this::adjustBlockMode);
+        addMenuButton("Setting->New", this::newGame);
+        addMenuRadioButton("Setting->Blocks->Set Blocks", "Blocks", false, this::adjustBlockMode);
+        addMenuRadioButton("Setting->Blocks->Move Pieces", "Blocks", true, this::adjustBlockMode);
 //        addMenuButton("Setting->Set Seed", this::setSeed);
-        addMenuRadioButton("Game->Players->Red AI", "Red", false, (dummy) -> send("ai red"));
-        addMenuRadioButton("Game->Players->Red Manual", "Red", true, (dummy) -> send("manual red"));
-        addMenuRadioButton("Game->Players->Blue AI", "Blue", true, (dummy) -> send("ai blue"));
-        addMenuRadioButton("Game->Players->Blue Manual", "Blue", false, (dummy) -> send("manual blue"));
-        addMenuButton("Game->Quit", this::quit);
+        addMenuRadioButton("Setting->Players->Red AI", "Red", false, (dummy) -> send("ai red"));
+        addMenuRadioButton("Setting->Players->Red Manual", "Red", true, (dummy) -> send("manual red"));
+        addMenuRadioButton("Setting->Players->Blue AI", "Blue", true, (dummy) -> send("ai blue"));
+        addMenuRadioButton("Setting->Players->Blue Manual", "Blue", false, (dummy) -> send("manual blue"));
+        addMenuButton("Setting->Quit", this::quit);
 
         gamePad = new GamePad(commandQueue);
         add(gamePad, new LayoutSpec("height", "1", "width", "REMAINDER", "ileft", 5, "itop", 5, "iright", 5, "ibottom", 5));
         addLabel("Red to move", "State", new LayoutSpec("y", 1, "anchor", "west"));
+        addLabel("    0 sec", "Timer", new LayoutSpec("y", 1, "anchor", "west"));
         addLabel("Red 0 : 0 Blue", "Score", new LayoutSpec("y", 1, "anchor", "east"));
         addButton("Pass", this::doPass, new LayoutSpec("y", "1"));
     }
@@ -45,25 +54,16 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
     /** Execute the "New Game" button function. */
     private synchronized void newGame(String unused) {
         send("new");
-        setEnabled(false, "Game->Blocks->Set Blocks");
-        setEnabled(true, "Game->Blocks->Move Pieces");
+        setEnabled(false, "Setting->Blocks->Set Blocks");
+        setEnabled(true, "Setting->Blocks->Move Pieces");
         gamePad.setBlockMode(false);
-    }
 
-//    /** Execute Seed... command. */
-//    private synchronized void setSeed(String unused) {
-//        String resp =
-//                getTextInput("Random Seed", "Get Seed", "question", "");
-//        if (resp == null) {
-//            return;
-//        }
-//        try {
-//            long s = Long.parseLong(resp);
-//            send("seed %d", s);
-//        } catch (NumberFormatException e) {
-//            e.printStackTrace();
-//        }
-//    }
+        // prepare timer
+        timer = new Timer();
+        sec = 0;
+        timerFlag = false;
+        doTimer();
+    }
 
     /** Execute 'pass' command, if legal. */
     private synchronized void doPass(String unused) {
@@ -72,18 +72,8 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         }
     }
 
-    /** Return true iff we are currently in block-setting mode. */
-    private boolean blockMode() {
-        return isSelected("Game->Blocks->Set Blocks");
-    }
-
     void adjustBlockMode(String label) {
-        gamePad.setBlockMode(label.equals("Game->Blocks->Set Blocks"));
-    }
-
-    /** Set PLAYER ("red" or "blue") to be an AI iff ON. */
-    private void setAIMode(String player, boolean on) {
-        send("%s %s%n", on ? "auto" : "manual", player);
+        gamePad.setBlockMode(label.equals("Setting->Blocks->Set Blocks"));
     }
 
     /** Set label indicating board state. */
@@ -121,6 +111,34 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
             label = String.format("Red %d : %d Blue", rScore, bScore);
         }
         setLabel("Score", label);
+    }
+
+    public void doTimer() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                sec++;
+                String label = String.format("    %d sec", sec);
+                setLabel("Timer", label);
+            }
+        };
+
+        // 定义计时器的开始时间和间隔时间（以毫秒为单位）
+        long delay = 1000L; // 延迟1秒执行
+        long interval = 0L; // 每隔1秒执行
+
+        // 安排计时器任务
+        timer.scheduleAtFixedRate(task, delay, interval);
+    }
+
+    public void clear() {
+        sec = 0;
+    }
+
+    public void stopAndClear() {
+        timer.cancel();
+        timer.purge();
+        clear();
     }
 
     /** Add the command described by FORMAT, ARGS (as for String.format) to
