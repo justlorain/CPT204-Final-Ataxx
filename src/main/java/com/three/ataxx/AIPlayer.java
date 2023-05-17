@@ -74,16 +74,15 @@ class AIPlayer extends Player {
     /**
      * Return a heuristic value for BOARD.
      * @param board the board
-     * @param currentDepth the current depth
-     * @param possibleMoves the possible moves
+     * @param winningValue the winning value
      * @return a heuristic value for BOARD.
      */
-    private int staticScore(Board board, int currentDepth, int possibleMoves) {
+    private int staticScore(Board board, int winningValue) {
         PieceState winner = board.getWinner();
         if (winner != null) {
             return switch (winner) {
-                case RED -> AIPlayer.WINNING_VALUE; // RED wins
-                case BLUE -> -AIPlayer.WINNING_VALUE; // BLUE wins
+                case RED -> winningValue; // RED wins
+                case BLUE -> -winningValue; // BLUE wins
                 default -> 0;
             };
         }
@@ -100,8 +99,9 @@ class AIPlayer extends Player {
 //        int centerDiff = myCenterScore - oppCenterScore;
 
         // 计算总分
-//        totalScore = diff * 10 + centerDiff * 5 + possibleMoves * 7 + currentDepth;
-        return diff * 10 + currentDepth;
+        // totalScore = diff * 10 + centerDiff * 5 + possibleMoves * 7 + currentDepth;
+        totalScore = diff * 10;
+        return totalScore;
     }
 
     /** Find a move from position BOARD and return its value, recording
@@ -121,18 +121,16 @@ class AIPlayer extends Player {
      */
     private int minMax(Board board, int depth, boolean saveMove, int sense, int alpha, int beta) {
         if (depth == 0 || board.getWinner() != null) {
-            return staticScore(board, depth, possibleMoves(board, board.nextMove()).size());
+            return staticScore(board, WINNING_VALUE);
         }
         int bestValue;
         if (sense == 1) {
             bestValue = -INFINITY;
-            ArrayList<Move> listOfMoves =
-                    possibleMoves(board, board.nextMove());
+            ArrayList<Move> listOfMoves = possibleMoves(board, board.nextMove());
             for (Move move : listOfMoves) {
                 Board copyBoard = new Board(board); // copy the board each time
                 copyBoard.createMove(move);
-                int possible
-                        = minMax(copyBoard, depth - 1, false, -1, alpha, beta);
+                int possible = minMax(copyBoard, depth - 1, false, -1, alpha, beta);
                 if (saveMove && possible > bestValue) { // save the best move
                     lastFoundMove = move;
                 }
@@ -147,13 +145,11 @@ class AIPlayer extends Player {
             }
         } else {
             bestValue = INFINITY;
-            ArrayList<Move> listOfMoves =
-                    possibleMoves(board, board.nextMove());
+            ArrayList<Move> listOfMoves = possibleMoves(board, board.nextMove());
             for (Move move : listOfMoves) {
                 Board copyBoard = new Board(board);
                 copyBoard.createMove(move);
-                int possible
-                        = minMax(copyBoard, depth - 1, false, 1, alpha, beta);
+                int possible = minMax(copyBoard, depth - 1, false, 1, alpha, beta);
                 if (saveMove && possible < bestValue) {
                     lastFoundMove = move;
                 }
@@ -191,8 +187,7 @@ class AIPlayer extends Player {
             for (char col = 'a'; col <= 'g'; col++) {
                 int index = Board.index(col, row); // get the index
                 if (board.getContent(index) == myColor) { // if it is my color then find all possible moves around
-                    ArrayList<Move> addMoves
-                            = assistPossibleMoves(board, row, col);
+                    ArrayList<Move> addMoves = assistPossibleMoves(board, row, col);
                     possibleMoves.addAll(addMoves);
                 }
             }
