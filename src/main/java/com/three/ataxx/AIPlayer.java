@@ -50,8 +50,6 @@ class AIPlayer extends Player {
         } else {
             minMax(b, MAX_DEPTH, true, -1, -INFTY, INFTY);
         }
-		
-
 
         // Please do not change the codes below
         if (lastFoundMove == null) {

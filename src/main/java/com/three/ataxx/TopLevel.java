@@ -11,10 +11,10 @@ import java.util.Observable;
 import java.util.function.Consumer;
 
 public class TopLevel extends Observable implements ActionListener {
-    private final HashMap<String, ButtonHandler> buttonMap = new HashMap();
-    private final HashMap<String, ButtonGroup> buttonGroups = new HashMap();
-    private final HashMap<String, JLabel> labelMap = new HashMap();
-    private static final HashMap<String, Integer> MESSAGE_TYPE_MAP = new HashMap();
+    private final HashMap<String, ButtonHandler> buttonMap = new HashMap<>();
+    private final HashMap<String, ButtonGroup> buttonGroups = new HashMap<>();
+    private final HashMap<String, JLabel> labelMap = new HashMap<>();
+    private static final HashMap<String, Integer> MESSAGE_TYPE_MAP = new HashMap<>();
     protected final JFrame frame;
 
     public void display(boolean visible) {
@@ -317,39 +317,29 @@ public class TopLevel extends Observable implements ActionListener {
         MESSAGE_TYPE_MAP.put("warning", 2);
         MESSAGE_TYPE_MAP.put("error", 0);
         MESSAGE_TYPE_MAP.put("plain", -1);
-        MESSAGE_TYPE_MAP.put("information", 1);
         MESSAGE_TYPE_MAP.put("question", 3);
     }
 
-    private static class ButtonHandler {
-        private Consumer<String> _func;
-        private String _id;
-        private AbstractButton _src;
-
-        ButtonHandler(Consumer<String> func, String id, AbstractButton src) {
-            this._src = src;
-            this._id = id;
-            this._func = func;
-        }
+    private record ButtonHandler(Consumer<String> func, String id, AbstractButton src) {
 
         boolean isSelected() {
-            return this._src.getModel().isSelected();
-        }
-
-        void setSelected(boolean value) {
-            this._src.setSelected(value);
-        }
-
-        void setEnabled(boolean value) {
-            this._src.setEnabled(value);
-        }
-
-        void doAction() {
-            if (this._func != null) {
-                this._func.accept(this._id);
+                return this.src.getModel().isSelected();
             }
 
+            void setSelected(boolean value) {
+                this.src.setSelected(value);
+            }
+
+            void setEnabled(boolean value) {
+                this.src.setEnabled(value);
+            }
+
+            void doAction() {
+                if (this.func != null) {
+                    this.func.accept(this.id);
+                }
+
+            }
         }
-    }
 }
 

@@ -17,8 +17,8 @@ import java.util.function.BiConsumer;
 import javax.swing.JComponent;
 
 public class Pad extends Widget {
-    private final HashMap<String, BiConsumer<String, MouseEvent>> mouseEventMap = new HashMap();
-    private final HashMap<String, BiConsumer<String, KeyEvent>> keyEventMap = new HashMap();
+    private final HashMap<String, BiConsumer<String, MouseEvent>> mouseEventMap = new HashMap<>();
+    private final HashMap<String, BiConsumer<String, KeyEvent>> keyEventMap = new HashMap<>();
     private static final String[] MOUSE_EVENT_NAMES = new String[]{"press", "release", "click", "enter", "exit", "drag", "move"};
     private static final String[] KEY_EVENT_NAMES = new String[]{"keypress", "keyrelease", "keytype"};
     private Dimension minimumSize;
@@ -124,14 +124,14 @@ public class Pad extends Widget {
     }
 
     private void handle(String kind, MouseEvent e) {
-        BiConsumer<String, MouseEvent> h = (BiConsumer)this.mouseEventMap.get(kind);
+        BiConsumer<String, MouseEvent> h = this.mouseEventMap.get(kind);
         if (h != null) {
             h.accept(kind, e);
         }
     }
 
     private void handle(String kind, KeyEvent e) {
-        BiConsumer<String, KeyEvent> h = (BiConsumer)this.keyEventMap.get(kind);
+        BiConsumer<String, KeyEvent> h = this.keyEventMap.get(kind);
         if (h != null) {
             h.accept(kind, e);
         }
