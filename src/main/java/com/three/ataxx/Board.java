@@ -288,6 +288,21 @@ class Board {
         }
         unblockedNum += decNum;
 
+//        setContent(c,r,BLOCKED);
+//        unblockedNum--;
+//        if (row != r){
+//            setContent(c,row,BLOCKED);
+//            --unblockedNum;
+//        }
+//        if (col!=c){
+//            setContent(col,r,BLOCKED);
+//            --unblockedNum;
+//        }
+//        if (col!=c&&r!=row){
+//            setContent(col,row,BLOCKED);
+//            --unblockedNum;
+//        }
+
         // Please do not change the following codes
         if (!couldMove(RED) && !couldMove(BLUE)) {
             winner = EMPTY;
@@ -389,6 +404,21 @@ class Board {
             winner = EMPTY;
         }
 
+//        if ((!couldMove(RED)&&!couldMove(BLUE))||getConsecJumpNums()>=CONSEC_JUMP_LIMIT){
+//            int r = getColorNums(RED);
+//            int b = getColorNums(BLUE);
+//            winner = r>b?RED:r==b?EMPTY:BLUE;
+//        }
+//        else if (getColorNums(RED)==0){
+//            winner = BLUE;
+//        }
+//        else if (getColorNums(BLUE)==0){
+//            winner = RED;
+//        }
+//        else{
+//            winner = null;
+//        }
+
 
         // Please do not change the return statement below
         return winner;
@@ -447,8 +477,7 @@ class Board {
      */
     int getColorNums(PieceState color) {
         // complete the code
-
-
+        if (color!=RED&&color!=BLUE){return 0;}
         return colorNum[color.ordinal()];
     }
 

@@ -101,6 +101,8 @@ class Move {
 
 		
         return (Math.abs(col0 - col1) == 2 && Math.abs(row0 - row1) <=2) || (Math.abs(row0 - row1) == 2 && Math.abs(col0 - col1) <= 2);
+
+        // return (Math.abs(col1 - col0) <= 2) && (Math.abs(row1 - row0) <= 2) && !(Math.abs(col1 - col0) <= 1 && Math.abs(row1 - row0) <= 1);
     }
 
 
