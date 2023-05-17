@@ -32,6 +32,7 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         gamePad = new GamePad(commandQueue);
         add(gamePad, new LayoutSpec("height", "1", "width", "REMAINDER", "ileft", 5, "itop", 5, "iright", 5, "ibottom", 5));
         addLabel("Red to move", "State", new LayoutSpec("y", 1, "anchor", "west"));
+        addLabel("Red 0 : 0 Blue", "Score", new LayoutSpec("y", 1, "anchor", "east"));
         addButton("Pass", this::doPass, new LayoutSpec("y", "1"));
     }
 
@@ -86,7 +87,7 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
     }
 
     /** Set label indicating board state. */
-    private void updateLabel() {
+    private void updateStateLabel() {
         String label;
         int red = board.getColorNums(RED);
         int blue = board.getColorNums(BLUE);
@@ -104,6 +105,24 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         setLabel("State", label);
     }
 
+    private void updateScoreLabel() {
+        String label;
+        int rScore = board.getColorNums(RED);
+        int bScore = board.getColorNums(BLUE);
+        if (board.getWinner() != null) {
+            if (rScore > bScore) {
+                label = String.format("Red wins (%d-%d)", rScore, bScore);
+            } else if (rScore < bScore) {
+                label = String.format("Blue wins (%d-%d)", rScore, bScore);
+            } else {
+                label = "Drawn game";
+            }
+        } else {
+            label = String.format("Red %d : %d Blue", rScore, bScore);
+        }
+        setLabel("Score", label);
+    }
+
     /** Add the command described by FORMAT, ARGS (as for String.format) to
      *  the queue of waiting commands returned by getCommand. */
     private void send(String format, Object... args) {
@@ -112,11 +131,12 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
 
 
     // These methods could be modified
-	
+
     @Override
     public void update(Board board) {
         if (board == this.board) {
-            updateLabel();
+            updateStateLabel();
+            updateScoreLabel();
         }
         this.board = board;
         gamePad.update(board);
@@ -156,11 +176,11 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
     }
 
     public void setVisible(boolean b) {
-		display(true);
+        display(true);
     }
 
     public void pack() {
-		
+
     }
-	
+
 }
