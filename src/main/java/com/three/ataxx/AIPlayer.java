@@ -12,25 +12,41 @@ class AIPlayer extends Player {
 
     /** Maximum minimax search depth before going to static evaluation. */
     private static final int MAX_DEPTH = 5;
-    /** A position magnitude indicating a win (for red if positive, blue
-     *  if negative). */
-    private static final int WINNING_VALUE = Integer.MAX_VALUE - 20;
-    /** A magnitude greater than a normal value. */
-    private static final int INFTY = Integer.MAX_VALUE;
 
-    /** A new AIPlayer for GAME that will play MYCOLOR.
+    /** A position magnitude indicating a win (for red if positive, blue if negative). */
+    private static final int WINNING_VALUE = Integer.MAX_VALUE - 20;
+
+    /** A magnitude greater than a normal value. */
+    private static final int INFINITY = Integer.MAX_VALUE;
+
+    /** The move found by the last call to the findMove method above. */
+    private Move lastFoundMove;
+
+    /** Constructs a new AIPlayer for GAME that will play MYCOLOR.
      *  SEED is used to initialize a random-number generator,
 	 *  increase the value of SEED would make the AIPlayer move automatically.
-     *  Identical seeds produce identical behaviour. */
+     *  Identical seeds produce identical behaviour.
+     * @param game the game
+     * @param myColor the color of the player
+     * @param seed the seed
+     */
     AIPlayer(Game game, PieceState myColor, long seed) {
         super(game, myColor);
     }
 
+    /**
+     * Return true iff I am an automated player that automatically
+     * @return true iff I am an automated player that automatically
+     */
     @Override
     boolean isAuto() {
         return true;
     }
 
+    /**
+     * Return my next move from the current position in getAtaxxGame().
+     * @return my next move from the current position in getAtaxxGame().
+     */
     @Override
     String getAtaxxMove() {
         Move move = findMove();
@@ -38,13 +54,15 @@ class AIPlayer extends Player {
         return move.toString();
     }
 
-    /** Return a move for me from the current position, assuming there
-     *  is a move. */
+    /** Return a move for me from the current position, assuming there is a move.
+     * The move's row and column values must be in the range 0..Board.SIDE - 1.
+     * @return a move for me from the current position, assuming there is a move.
+     */
     private Move findMove() {
         Board b = new Board(getAtaxxBoard());
         lastFoundMove = null;
 
-        minMax(b, MAX_DEPTH, true, -1, -INFTY, INFTY);
+        minMax(b, MAX_DEPTH, true, -1, -INFINITY, INFINITY);
 
         // Please do not change the codes below
         if (lastFoundMove == null) {
@@ -53,8 +71,13 @@ class AIPlayer extends Player {
         return lastFoundMove;
     }
 
-    /** Return a heuristic value for BOARD.  This value is +- WINNINGVALUE in
-     *  won positions, and 0 for ties. */
+    /**
+     * Return a heuristic value for BOARD.
+     * @param board the board
+     * @param currentDepth the current depth
+     * @param possibleMoves the possible moves
+     * @return a heuristic value for BOARD.
+     */
     private int staticScore(Board board, int currentDepth, int possibleMoves) {
         PieceState winner = board.getWinner();
         if (winner != null) {
@@ -87,18 +110,22 @@ class AIPlayer extends Player {
      *  and minimal value or value < ALPHA if SENSE==-1. Searches up to
      *  DEPTH levels.  Searching at level 0 simply returns a static estimate
      *  of the board value and does not set _foundMove. If the game is over
-     *  on BOARD, does not set _foundMove. */
-    private int minMax(Board board, int depth, boolean saveMove, int sense,
-                       int alpha, int beta) {
-        /* We use WINNING_VALUE + depth as the winning value to favor
-         * wins that happen sooner rather than later (depth is larger the
-         * fewer moves have been made. */
-        if (depth == 0 || board.getWinner() != null) { // base case 游戏结束
+     *  on BOARD, does not set _foundMove.
+     *  @param board the board
+     *  @param depth the depth
+     *  @param saveMove whether to save the move
+     *  @param sense the sense
+     *  @param alpha the alpha
+     *  @param beta the beta
+     *  @return the value
+     */
+    private int minMax(Board board, int depth, boolean saveMove, int sense, int alpha, int beta) {
+        if (depth == 0 || board.getWinner() != null) {
             return staticScore(board, depth, possibleMoves(board, board.nextMove()).size());
         }
         int bestValue;
         if (sense == 1) {
-            bestValue = -INFTY;
+            bestValue = -INFINITY;
             ArrayList<Move> listOfMoves =
                     possibleMoves(board, board.nextMove());
             for (Move move : listOfMoves) {
@@ -115,11 +142,11 @@ class AIPlayer extends Player {
                     break;
                 }
             }
-            if (bestValue == -INFTY) { // no possible moves
+            if (bestValue == -INFINITY) { // no possible moves
                 return 0;
             }
         } else {
-            bestValue = INFTY;
+            bestValue = INFINITY;
             ArrayList<Move> listOfMoves =
                     possibleMoves(board, board.nextMove());
             for (Move move : listOfMoves) {
@@ -136,21 +163,18 @@ class AIPlayer extends Player {
                     break;
                 }
             }
-            if (bestValue == INFTY) { // no possible moves
+            if (bestValue == INFINITY) { // no possible moves
                 return 0;
             }
         }
         return bestValue;
     }
 
-    /** The move found by the last call to the findMove method above. */
-    private Move lastFoundMove;
-
-
     /** Return all possible moves for a color.
      * @param board the current board.
      * @param myColor the specified color.
-     * @return an ArrayList of all possible moves for the specified color. */
+     * @return an ArrayList of all possible moves for the specified color.
+     */
     private ArrayList<Move> possibleMoves(Board board, PieceState myColor) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
 
@@ -179,10 +203,11 @@ class AIPlayer extends Player {
     /** Returns an Arraylist of legal moves.
      * @param board the board for testing
      * @param row the row coordinate of the center
-     * @param col the col coordinate of the center */
+     * @param col the col coordinate of the center
+     * @return an ArrayList of legal moves.
+     */
     private ArrayList<Move> assistPossibleMoves(Board board, char row, char col) {
         ArrayList<Move> assistPossibleMoves = new ArrayList<>();
-
         for (int i = -2; i <= 2; i++) { // search all possible moves around two steps
             for (int j = -2; j <= 2; j++) {
                 if (i != 0 || j != 0) {
