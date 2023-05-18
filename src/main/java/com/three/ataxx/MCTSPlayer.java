@@ -7,15 +7,29 @@ class MCTSPlayer extends Player {
     private static final int MAX_ITERATIONS = 1000;
     private Move lastFoundMove;
 
+    /**
+     * Constructor for MCTSPlayer
+     * @param game The game
+     * @param myColor The color of the player
+     * @param seed The seed for the random number generator
+     */
     MCTSPlayer(Game game, PieceState myColor, long seed) {
         super(game, myColor);
     }
 
+    /**
+     * Whether the player is auto
+     * @return true
+     */
     @Override
     boolean isAuto() {
         return true;
     }
 
+    /**
+     * Get the move for the player
+     * @return The move
+     */
     @Override
     String getAtaxxMove() {
         Move move = findMove();
@@ -23,9 +37,10 @@ class MCTSPlayer extends Player {
         return move.toString();
     }
 
-    /***
-     * 进行指定次数的MCTS迭代（可以基于时间，但在这里我们用固定迭代次数来简化），
-     * 然后选择访问次数最多的子节点的移动作为最佳移动。
+    /**
+     * Do a specified number of MCTS iterations (can be based on time, but here we simplify with a fixed number of iterations),
+     * Then the move of the child node with the most visits is selected as the best move.
+     * @return The best move
      */
     private Move findMove() {
         Node root = new Node(getAtaxxGame().getAtaxxBoard(), null, null, getMyState());
@@ -40,11 +55,12 @@ class MCTSPlayer extends Player {
     }
 
     /***
-     * 执行MCTS的四个阶段：选择、扩展、模拟和反向传播。
-     * 在选择阶段，我们会选择UCT值最大的未完全扩展的子节点。
-     * 在扩展阶段，我们会对选择阶段选中的节点进行扩展，生成一个新的子节点。
-     * 在模拟阶段，我们会随机模拟游戏直到结束，然后得到模拟结果。
-     * 在反向传播阶段，我们会根据模拟结果更新节点的访问次数和胜利次数。
+     * Perform the four phases of MCTS: selection, extension, simulation, and back propagation.
+     * In the selection phase, we select the incomplete child node with the largest UCT value.
+     * In the extension phase, we extend the selected node to generate a new child node.
+     * In the simulation phase, we randomly simulate the game until the end, and then we get the simulation results.
+     * In the back propagation phase, we will update the number of node visits and victories according to the simulation results.
+     * @param root The root node
      */
     private void runMCTS(Node root) {
         // Select
@@ -64,9 +80,12 @@ class MCTSPlayer extends Player {
     }
 
     /***
-     * 在选择阶段，我们需要使用一种策略来从根节点开始，选择一个未完全扩展或者没有子节点的节点。
-     * 在这里，我们使用Upper Confidence Bound 1 applied to Trees (UCT) 策略。
-     * UCT策略选择UCT值最大的子节点，其中UCT值由节点的胜率和访问次数计算得到。
+     * In the selection phase, we need to use a strategy to select a node that is not fully extended or has no child nodes,
+     * starting with the root node.
+     * Here, we use the Upper Confidence Bound 1 applied to Trees (UCT) strategy.
+     * The UCT policy selects the child node with the largest UCT value, which is calculated by the node's win rate and access times.
+     * @param node The node
+     * @return The selected node
      */
     private Node select(Node node) {
         // 如果节点没有子节点，直接返回该节点
@@ -98,7 +117,8 @@ class MCTSPlayer extends Player {
 
 
     /***
-     * 在扩展阶段，我们会在选择的节点上添加一个新的子节点。新的子节点代表一个合法的且从未尝试过的移动。
+     * In the extension phase, we add a new child node on the selected node. The new child node represents a legal and unattempted move.
+     * @param node The node
      */
     private void expand(Node node) {
         ArrayList<Move> possibleMoves = node.possibleMoves(node.getState(),node.getState().nextMove());
@@ -115,8 +135,13 @@ class MCTSPlayer extends Player {
         }
     }
 
-    /***
-     * 模拟也被称为rollout，这个过程从一个节点的状态开始，并随机地选择一个合法的行动，直到达到一个终止状态，即游戏结束。
+    /**
+     * Simulation, also known as rollout,
+     * is a process that starts with the state of a node and randomly
+     * selects a legal action until a termination state is reached,
+     * which is the end of the game.
+     * @param node The node
+     * @return The result of the simulation
      */
     private PieceState simulate(Node node) {
         Board tempNode = new Board(node.getState());
@@ -135,10 +160,12 @@ class MCTSPlayer extends Player {
         return tempNode.getWinner();
     }
 
-    /***
-     * 在反向传播过程中，
-     * 需要更新所选路径中的所有节点的访问次数和获胜次数。
-     * 如果模拟的结果是当前节点的玩家胜利，我们就增加该节点的获胜次数。
+    /**
+     * In the process of back propagation,
+     * The number of visits and wins for all nodes in the selected path needs to be updated.
+     * If the result of the simulation is a win for the player of the current node, we increase the number of wins for that node.
+     * @param node The node
+     * @param winner The winner
      */
     private void backpropagate(Node node, PieceState winner) {
         Node tempNode = node;

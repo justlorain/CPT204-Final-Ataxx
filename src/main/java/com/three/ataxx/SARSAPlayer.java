@@ -30,11 +30,19 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
         this.qTable = loadModel();
     }
 
+    /**
+     * Judge whether the player is auto
+     * @return true
+     */
     @Override
     boolean isAuto() {
         return true;
     }
 
+    /**
+     * Get the move for the player
+     * @return The move
+     */
     @Override
     String getAtaxxMove() {
         Move move = findMove();
@@ -42,9 +50,10 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
         return move.toString();
     }
 
-    /** Return a move for me from the current position, assuming there
-     *  is a move. */
-
+    /**
+     * Return a move for me from the current position, assuming there is a move.
+     * @return a move
+     */
     private Move findMove() {
         Board b = new Board(getAtaxxBoard());
         lastFoundMove = null;
@@ -84,9 +93,12 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
     /** The move found by the last call to the findMove method above. */
     private Move lastFoundMove;
 
-    // 下面是实现SARSA算法的一些辅助函数
-    /***
-     * 定义了智能体如何寻找可能的动作。
+    // helper function for SARSAPlayer
+    /**
+     * Defines how the agent looks for possible actions
+     * @param board the current board
+     * @param myColor the color of the player
+     * @return a list of possible moves
      */
     private ArrayList<Move> possibleMoves(Board board, PieceState myColor) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
@@ -113,6 +125,13 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
         return possibleMoves;
     }
 
+    /**
+     * Defines how the agent looks for possible actions
+     * @param board the current board
+     * @param row the row of the piece
+     * @param col the column of the piece
+     * @return a list of possible moves
+     */
     private ArrayList<Move> assistPossibleMoves(Board board, char row, char col) {
         ArrayList<Move> assistPossibleMoves = new ArrayList<>();
 
@@ -131,11 +150,12 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
         return assistPossibleMoves;
     }
 
-    /***
-     *  函数应该评估一个给定的动作在当前状态下的价值。在强化学习中，这个价值通常是从Q表中获取的，
-     *  因此可能会调用getQValue函数。
-     * @param board
-     * @return
+    /**
+     * The function should evaluate the value of a given action in its current state.
+     * In reinforcement learning, this value is usually derived from the Q table,
+     * Therefore, the getQValue function may be called.
+     * @param board the current board
+     * @return the value of the action
      */
     private double evaluateMove(Board board) {
         // Evaluation function based on the difference in number of pieces
@@ -153,11 +173,11 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
         return myPieces - opponentPieces;
     }
 
-    /***
-     *  函数应该将一个状态（在这个情况下是棋盘）映射到Q表的一个索引。
-     *  需要决定如何将棋盘的状态编码为一个唯一的字符串或数字，以便在Q表中查找。
-     * @param board
-     * @return
+    /**
+     * The function should map a state (in this case, the chessboard) to an index of the Q table.
+     * You need to decide how to encode the state of the board into a unique string or number that you can look up in the Q table.
+     * @param board the current board
+     * @return the index of the Q table
      */
     private String mapStateToIndex(Board board) {
         StringBuilder sb = new StringBuilder();
@@ -173,11 +193,11 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
 
 
     /***
-     * 函数应该返回给定状态下所有可能动作的Q值。
-     * 使用possibleMoves函数来获取所有可能的动作。
-     * 使用getQValue函数来获取每个动作的Q值。
-     * @param board
-     * @return
+     * The function should return Q values for all possible actions in a given state.
+     * Use possibleMoves to get all possible moves.
+     * Use getQValue to get the Q value of each action.
+     * @param board the current board
+     * @return a map of moves and their Q values
      */
     private Map<Move, Double> getQValues(Board board) {
         String stateIndex = mapStateToIndex(board);
@@ -194,6 +214,12 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
     }
 
 
+    /**
+     * The function should return the Q value of a given action in a given state.
+     * @param board the current board
+     * @param move the move to be evaluated
+     * @return the Q value of the move
+     */
     private double getQValue(Board board, Move move) {
         Map<Move, Double> qValues = getQValues(board);
         // If this move is not in the Q values, add it
@@ -203,14 +229,14 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
 
 
     /***
-     * 更新Q表中一个状态-动作对的Q值。需要实现SARSA的更新规则，这个规则是：
-     * Q(s,a) = Q(s,a) + alpha * (reward + gamma * Q(s',a') - Q(s,a))
-     * 其中 `s` 是当前状态，`a` 是当前动作，`reward` 是当前动作的奖励，`s`是下一个状态，
-     * `a` 是在状态 `s` 下的动作，`alpha` 是学习率，`gamma` 是折扣因子。
-     * @param current
-     * @param move
-     * @param next
-     * @param reward
+     * Update the Q value of a state-action pair in the Q table. You need to implement SARSA's update rule, which is:
+     * * Q(s,a) = Q(s,a) + alpha * (reward + gamma * Q(s',a') - Q(s,a))
+     * Where 's' is the current state, 'a' is the current action, 'reward' is the reward of the current action, 's' is the next state,
+     * 'a' is the action in state 's', 'alpha' is the learning rate, and 'gamma' is the discount factor.
+     * @param current the current board
+     * @param move the move to be evaluated
+     * @param next the next board
+     * @param reward the reward of the move
      */
     private void updateQValue(Board current, Move move, Board next, double reward) {
         double maxQ;
@@ -231,11 +257,11 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
 
 
     /***
-     * 函数应该在Q表中设置一个状态-动作对的Q值。
-     * 需要在此函数中使用 mapStateToIndex 函数来获取状态的索引。
-     * @param board
-     * @param move
-     * @param value
+     * The function should set the Q value of a state-action pair in the Q table.
+     * You need to use the mapStateToIndex function in this function to get the index of the state.
+     * @param board the current board
+     * @param move the move to be evaluated
+     * @param value the new Q value
      */
     private void setQValue(Board board, Move move, double value) {
         Map<Move, Double> qValues = getQValues(board);
@@ -244,10 +270,13 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
 
 
     /***
-     * 函数应该计算一个动作的奖励。你需要定义一个奖励函数，这个函数应该反映出你的游戏策略。
-     * 例如，可以给赢得游戏的动作一个大的正奖励，给输掉游戏的动作一个大的负奖励，给其他动作一个小的奖励或惩罚。
-     * @param board
-     * @return
+     * The function should calculate the reward for an action.
+     * You need to define a reward function that reflects your game strategy.
+     * For example, you can give a large positive reward for winning a game,
+     * a large negative reward for losing a game,
+     * and a small reward or punishment for other actions.
+     * @param board the current board
+     * @return the reward of the action
      */
     private double calculateReward(Board board) {
         if (board.getWinner()!= null) {
@@ -261,11 +290,11 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
     }
 
 
-    /***
-     * 用于加载和保存Q表。
-     * 需要决定如何在文件中存储Q表。
-     * 一种可能的方式是将Q表存储为一个CSV文件，每一行代表一个状态-动作对和对应的Q值。
-     * @return
+    /**
+     * Used to load and save the Q table.
+     * You need to decide how to store Q tables in files.
+     * One possible approach is to store the Q table as a CSV file,
+     * with each row representing a state-action pair and corresponding Q value.
      */
     void saveModel() {
         try {
@@ -279,6 +308,10 @@ class SARSAPlayer extends Player { // 这是一个基于强化学习-SARSA算法
         }
     }
 
+    /**
+     * Used to load and save the Q table.
+     * @return the loaded Q table
+     */
     @SuppressWarnings("unchecked")
     Map<String, Map<Move, Double>> loadModel() {
         try {
