@@ -7,13 +7,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class LayoutSpec {
+public class LayoutHelper {
     private static final HashSet<String> ALL_SPECS = new HashSet(Arrays.asList("x", "y", "fill", "height", "ht", "width", "wid", "anchor", "weightx", "weighty", "ileft", "iright", "itop", "ibottom"));
     private static final HashMap<Object, Integer> INT_NAMES = new HashMap();
     private static final Object[][] INT_NAMES_INIT = new Object[][]{{"center", 10}, {"north", 11}, {"south", 15}, {"east", 13}, {"west", 17}, {"southwest", 16}, {"southeast", 14}, {"northwest", 18}, {"northeast", 12}, {"remainder", 0}, {"rest", 0}, {"horizontal", 2}, {"horiz", 2}, {"vertical", 3}, {"vert", 3}, {"both", 1}};
     private final GridBagConstraints _params = new GridBagConstraints();
 
-    public LayoutSpec(Object... specs) {
+    public LayoutHelper(Object... specs) {
         this._params.weightx = 1.0;
         this._params.weighty = 1.0;
         this._params.insets = new Insets(0, 0, 0, 0);

@@ -8,7 +8,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import static com.three.ataxx.PieceState.*;
 
-class GUI extends TopLevel implements View, CommandSource, Reporter {
+class GUI extends GUIHelper implements View, CommandSource, Reporter {
 
     /** Contains the drawing logic for the Ataxx model. */
     private final GamePad gamePad;
@@ -16,21 +16,25 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
     private final ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(5);
     /** The model of the game. */
     private Board board;
-
     /** Timer */
     private Timer timer;
+    /** Seconds */
     private int sec;
-
+    /** Timer flag */
     private boolean timerFlag;
 
     // Complete the codes here
+
+    /**
+     * Constructor of GUI.
+     * @param ataxx the title of the GUI.
+     */
     GUI(String ataxx) {
         super(ataxx, true);
         // set game
         addMenuButton("Setting->New", this::newGame);
         addMenuRadioButton("Setting->Blocks->Set Blocks", "Blocks", false, this::adjustBlockMode);
         addMenuRadioButton("Setting->Blocks->Move Pieces", "Blocks", true, this::adjustBlockMode);
-//        addMenuButton("Setting->Set Seed", this::setSeed);
         addMenuRadioButton("Setting->Players->Red AI", "Red", false, (dummy) -> send("ai red"));
         addMenuRadioButton("Setting->Players->Red Manual", "Red", true, (dummy) -> send("manual red"));
         addMenuRadioButton("Setting->Players->Blue AI", "Blue", true, (dummy) -> send("ai blue"));
@@ -38,21 +42,28 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         addMenuButton("Setting->Quit", this::quit);
 
         gamePad = new GamePad(commandQueue);
-        add(gamePad, new LayoutSpec("height", "1", "width", "REMAINDER", "ileft", 5, "itop", 5, "iright", 5, "ibottom", 5));
-        addLabel("Red to move", "State", new LayoutSpec("y", 1, "anchor", "west"));
-        addLabel("    0 sec", "Timer", new LayoutSpec("y", 1, "anchor", "west"));
-        addLabel("Red 0 : 0 Blue", "Score", new LayoutSpec("y", 1, "anchor", "east"));
-        addButton("Pass", this::doPass, new LayoutSpec("y", "1"));
+        add(gamePad, new LayoutHelper("height", "1", "width", "REMAINDER", "ileft", 5, "itop", 5, "iright", 5, "ibottom", 5));
+        addLabel("Red to move", "State", new LayoutHelper("y", 1, "anchor", "west"));
+        addLabel("    0 sec", "Timer", new LayoutHelper("y", 1, "anchor", "west"));
+        addLabel("Red 0 : 0 Blue", "Score", new LayoutHelper("y", 1, "anchor", "east"));
+        addButton("Pass", this::doPass, new LayoutHelper("y", "1"));
         prepareTimer();
     }
 
     // Add some codes here
-    /** Execute the "Quit" button function. */
+
+    /**
+     * Quit the game.
+     * @param unused the label of the button.
+     */
     private synchronized void quit(String unused) {
         send("quit");
     }
 
-    /** Execute the "New Game" button function. */
+    /**
+     * Execute the "New" button function.
+     * @param unused the label of the button.
+     */
     private synchronized void newGame(String unused) {
         send("new");
         setEnabled(false, "Setting->Blocks->Set Blocks");
@@ -60,18 +71,27 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         gamePad.setBlockMode(false);
     }
 
-    /** Execute 'pass' command, if legal. */
+    /**
+     * Execute the "Pass" button function.
+     * @param unused the label of the button.
+     */
     private synchronized void doPass(String unused) {
         if (board.moveLegal(Move.pass())) {
             send("-");
         }
     }
 
+    /**
+     * Adjust the block mode.
+     * @param label the label of the button.
+     */
     void adjustBlockMode(String label) {
         gamePad.setBlockMode(label.equals("Setting->Blocks->Set Blocks"));
     }
 
-    /** Set label indicating board state. */
+    /**
+     * Send the command to the game.
+     */
     private void updateStateLabel() {
         String label;
         int red = board.getColorNums(RED);
@@ -90,6 +110,9 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         setLabel("State", label);
     }
 
+    /**
+     * Set label indicating board score.
+     */
     private void updateScoreLabel() {
         String label;
         int rScore = board.getColorNums(RED);
@@ -108,12 +131,18 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         setLabel("Score", label);
     }
 
+    /**
+     * prepare the timer.
+     */
     private void prepareTimer() {
         timer = new Timer();
         sec = 0;
         timerFlag = true;
     }
 
+    /**
+     * start the timer.
+     */
     private void startTimer() {
         TimerTask task = new TimerTask() {
             @Override
@@ -128,10 +157,16 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         timer.scheduleAtFixedRate(task, delay, interval);
     }
 
+    /**
+     * stop the timer.
+     */
     public void stopTimer() {
         timer.cancel(); // 停止计时器
     }
 
+    /**
+     * restart the timer.
+     */
     public void restartTimer() {
         timer.cancel(); // 取消当前计时器
         timer = new Timer(); // 创建新的计时器
@@ -148,6 +183,10 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
 
     // These methods could be modified
 
+    /**
+     * Update the board.
+     * @param board the board.
+     */
     @Override
     public void update(Board board) {
         if (timerFlag) {
@@ -163,6 +202,11 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         restartTimer();
     }
 
+    /**
+     * Get the command.
+     * @param prompt the prompt.
+     * @return the command.
+     */
     @Override
     public String getCommand(String prompt) {
         try {
@@ -172,6 +216,10 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         }
     }
 
+    /**
+     * Announce the winner.
+     * @param state the winner.
+     */
     @Override
     public void announceWinner(PieceState state) {
         if (state == EMPTY) {
@@ -182,25 +230,47 @@ class GUI extends TopLevel implements View, CommandSource, Reporter {
         }
     }
 
+    /**
+     * Announce the move.
+     * @param move the move.
+     * @param player the player.
+     */
     @Override
     public void announceMove(Move move, PieceState player) {
 
     }
 
+    /**
+     * Announce the error.
+     * @param format the format.
+     * @param args the args.
+     */
     @Override
     public void message(String format, Object... args) {
         showMessage(String.format(format, args), "Message", "information");
     }
 
+    /**
+     * Announce the error.
+     * @param format the format.
+     * @param args the args.
+     */
     @Override
     public void error(String format, Object... args) {
         showMessage(String.format(format, args), "Error", "error");
     }
 
+    /**
+     * set the visible.
+     * @param b the boolean.
+     */
     public void setVisible(boolean b) {
         display(true);
     }
 
+    /**
+     * pack the frame.
+     */
     public void pack() {
 
     }

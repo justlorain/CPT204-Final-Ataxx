@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.function.Consumer;
 
-public class TopLevel extends Observable implements ActionListener {
+public class GUIHelper extends Observable implements ActionListener {
     private final HashMap<String, ButtonHandler> buttonMap = new HashMap<>();
     private final HashMap<String, ButtonGroup> buttonGroups = new HashMap<>();
     private final HashMap<String, JLabel> labelMap = new HashMap<>();
@@ -25,7 +25,7 @@ public class TopLevel extends Observable implements ActionListener {
         this.frame.setVisible(visible);
     }
 
-    protected TopLevel(String title, boolean exitOnClose) {
+    protected GUIHelper(String title, boolean exitOnClose) {
         this.frame = new JFrame(title);
         this.frame.setUndecorated(true);
         this.frame.getRootPane().setWindowDecorationStyle(1);
@@ -139,7 +139,7 @@ public class TopLevel extends Observable implements ActionListener {
 
     }
 
-    protected void addButton(String label, Consumer<String> func, LayoutSpec layout) {
+    protected void addButton(String label, Consumer<String> func, LayoutHelper layout) {
         if (this.buttonMap.containsKey(label)) {
             throw new IllegalStateException("already have button labeled " + label);
         } else {
@@ -151,7 +151,7 @@ public class TopLevel extends Observable implements ActionListener {
         }
     }
 
-    protected void addCheckBox(String label, boolean selected, Consumer<String> func, LayoutSpec layout) {
+    protected void addCheckBox(String label, boolean selected, Consumer<String> func, LayoutHelper layout) {
         if (this.buttonMap.containsKey(label)) {
             throw new IllegalStateException("already have item labeled " + label);
         } else {
@@ -163,7 +163,7 @@ public class TopLevel extends Observable implements ActionListener {
         }
     }
 
-    protected void addRadioButton(String label, String groupName, boolean selected, Consumer<String> func, LayoutSpec layout) {
+    protected void addRadioButton(String label, String groupName, boolean selected, Consumer<String> func, LayoutHelper layout) {
         JRadioButton item = new JRadioButton(label, selected);
         this.getGroup(groupName).add(item);
         item.setActionCommand(label);
@@ -175,11 +175,11 @@ public class TopLevel extends Observable implements ActionListener {
         this.frame.add(item, layout.params());
     }
 
-    protected void add(Widget widget, LayoutSpec layout) {
+    protected void add(Widget widget, LayoutHelper layout) {
         this.frame.add(widget.me, layout.params());
     }
 
-    protected void addLabel(String text, String id, LayoutSpec layout) {
+    protected void addLabel(String text, String id, LayoutHelper layout) {
         if (this.labelMap.containsKey(id)) {
             throw new IllegalArgumentException("duplicate label id: " + id);
         } else {
@@ -198,7 +198,7 @@ public class TopLevel extends Observable implements ActionListener {
         }
     }
 
-    protected void addLabel(String text, LayoutSpec layout) {
+    protected void addLabel(String text, LayoutHelper layout) {
         this.frame.add(new JLabel(text), layout.params());
     }
 
