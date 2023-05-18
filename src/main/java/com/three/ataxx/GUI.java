@@ -265,7 +265,7 @@ class GUI extends GUIHelper implements View, CommandSource, Reporter {
      * @param b the boolean.
      */
     public void setVisible(boolean b) {
-        display(true);
+        display(b);
     }
 
     /**
