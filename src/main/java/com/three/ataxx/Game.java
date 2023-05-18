@@ -106,7 +106,7 @@ class Game {
 
     /** Make the player of COLOR an AIPlayer for subsequent moves. */
     private void setAI(PieceState color) {
-        setAtaxxPlayer(color, new AIPlayer(this, color, seed));
+        setAtaxxPlayer(color, new MCTSPlayer(this, color, seed));
         seed += 1;
     }
 
